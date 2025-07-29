@@ -7,6 +7,7 @@ use VNShipping\Courier\Couriers;
 use VNShipping\Courier\ShippingStatus;
 use WP_Error;
 
+#[\AllowDynamicProperties]
 class ShippingData implements JsonSerializable {
 	/**
 	 * The shipping data ID.
@@ -149,6 +150,10 @@ class ShippingData implements JsonSerializable {
 		}
 	}
 
+	public function __toString() {
+        return "Shipping ID: " . $this->id . ", Order Id: " . $this->order_id . ", Courier: " . $this->courier;
+    }
+
 	/**
 	 * @return string
 	 */
@@ -203,7 +208,7 @@ class ShippingData implements JsonSerializable {
 	/**
 	 * @return array
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): mixed {
 		return $this->to_array();
 	}
 }
