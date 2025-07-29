@@ -45,8 +45,6 @@ class Plugin {
 
 			$base_info = $this->vnshipping_get_vtp_store_info();
 
-			echo '<script>console.log(' . json_encode($base_info) . ');</script>';
-
 			// Map WooCommerce province code to province name
 			$states = WC()->countries->get_states( $base_location['country'] );
 			$province_name = $states[ $base_location['state'] ] ?? $base_location['state'];
