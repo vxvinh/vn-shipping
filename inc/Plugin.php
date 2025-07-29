@@ -34,6 +34,43 @@ class Plugin {
 		// Database upgrade hooks.
 		$plugin_upgrader = new DatabaseUpgrader();
 		add_action( 'admin_init', [ $plugin_upgrader, 'init' ], 5 );
+
+		// Expose Store Info to JavaScript
+		add_action( 'admin_enqueue_scripts', function () {
+			if ( ! function_exists( 'wc_get_base_location' ) ) {
+				return;
+			}
+
+			$base_location = wc_get_base_location(); // ['country' => 'VN', 'state' => 'SG']
+
+			$base_info = $this->vnshipping_get_vtp_store_info();
+
+			echo '<script>console.log(' . json_encode($base_info) . ');</script>';
+
+			// Map WooCommerce province code to province name
+			$states = WC()->countries->get_states( $base_location['country'] );
+			$province_name = $states[ $base_location['state'] ] ?? $base_location['state'];
+
+			wp_enqueue_script(
+				'vn-shipping-store-info',
+				plugin_dir_url( __FILE__ ) . 'resources/js/vue/components/create/CreateVTPOrder.js', // Update path as needed
+				[ 'wp-element' ],
+				'1.0.0',
+				true
+			);
+
+			wp_localize_script( 'vn-shipping-store-info', 'vnStoreInfo', [
+				'address_1'     => get_option( 'woocommerce_store_address' ),
+				'address_2'     => get_option( 'woocommerce_store_address_2' ),
+				'district_code' => $base_info['districtId'],
+				'district'      => get_option( 'woocommerce_store_city' ),
+				'province_code' => $base_info['provinceId'],
+				'province'      => $province_name,
+				'postcode'      => get_option( 'woocommerce_store_postcode' ),
+				'country'       => $base_location['country'],
+			] );
+		} );
+
 	}
 
 	/**
@@ -193,5 +230,21 @@ class Plugin {
 			'side',
 			'high'
 		);
+	}
+
+	function vnshipping_get_vtp_store_info() {
+		$shipping_methods = \WC_Shipping_Zones::get_zones();
+
+		foreach ( $shipping_methods as $zone ) {
+			foreach ( $zone['shipping_methods'] as $method ) {
+				if ( $method->id === 'viettel_post' ) {
+					if ( method_exists( $method, 'get_store_info' ) ) {
+						return $method->get_store_info();
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 }
