@@ -103,10 +103,10 @@
             />
 
             <small class="form-text text-muted">
-              <a href="https://ghn.vn/pages/quy-dinh-ve-khieu-nai-cua-ghn"
+              <a href="https://viettelpost.com.vn/wp-content/uploads/2024/01/Dieu-khoan-va-dieu-kien-su-dung-dich-vu.pdf"
                  target="_blank">Qui trình</a>
               &nbsp; &amp; &nbsp;
-              <a href="https://ghn.vn/pages/chinh-sach-boi-thuong-cua-ghn"
+              <a href="https://viettelpost.com.vn/wp-content/uploads/2023/10/PL2.-QUY-ĐỊNH-VỀ-CHÍNH-SÁCH-BỒI-THƯỜNG.pdf"
                  target="_blank">Chính sách xử lý đền bù</a>
             </small>
           </div>
@@ -205,7 +205,7 @@
           </label>
 
           <p style="margin: 0; color: #999;">
-            <i>Nếu phương thức vận chuyển không hợp lệ thì GHTK sẽ tự động nhảy về PTVC mặc định</i>
+            <i>Nếu phương thức vận chuyển không hợp lệ thì ViettelPost sẽ tự động nhảy về PTVC mặc định</i>
           </p>
         </div>
 
@@ -335,14 +335,16 @@ export default {
           PRODUCT_PRICE: this.insurance,
           PRODUCT_WEIGHT: this.weight,
           RECEIVER_PROVINCE: this.address_data.province,
-          RECEIVER_DISTRICT: this.address_data.district
+          RECEIVER_DISTRICT: this.address_data.district,
+          SENDER_PROVINCE: window.vnStoreInfo.province_code,
+          SENDER_DISTRICT: window.vnStoreInfo.district_code,
         });
 
         this.availableServices = castArray(response);
       } catch (error) {
         this.availableServices = null;
 
-        this.errors.services = 'Không thể lấy gói cước cho địa chỉ này. Vui lòng thử lại.';
+        this.errors.services = 'ViettelPost Không thể lấy gói cước cho địa chỉ này. Vui lòng thử lại.';
       }
     }
   },
