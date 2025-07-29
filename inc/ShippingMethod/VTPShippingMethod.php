@@ -196,8 +196,9 @@ class VTPShippingMethod extends WC_Shipping_Method implements ShippingMethodInte
 							'<strong>%1$s (%2$s)</strong> <br/> <span>%3$s</span>',
 							esc_html( $store['name'] ?? '' ),
 							esc_html( $store['phone'] ?? '' ),
-							esc_html( $store['address'] ?? '' )
+							esc_html( $store['address'] ?? '' ),
 						);
+
 					}
 
 					return $options;
