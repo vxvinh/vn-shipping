@@ -387,7 +387,7 @@ export default {
       } catch (error) {
         this.availableServices = null;
 
-        this.errors.services = 'Không thể lấy gói cước cho địa chỉ này. Vui lòng thử lại.';
+        this.errors.services = 'GHN Không thể lấy gói cước cho địa chỉ này. Vui lòng thử lại.';
       }
     }
   },
