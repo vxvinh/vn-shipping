@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:     VNShipping for WooCommerce
- * Plugin URI:      https://github.com/awethemes/vn-shipping
+ * Plugin URI:      
  * Description:     Support shipping couriers in Vietnam like GHN, GHTK, Viettel-Post.
- * Author:          awethemes
- * Author URI:      https://awethemes.com
+ * Author:          Vo Xuan Vinh
+ * Author URI:      
  * Text Domain:     vn-shipping
  * Domain Path:     /languages
- * Version:         0.2.0
+ * Version:         1.0.0
  *
  * @package         VNShipping
  */
