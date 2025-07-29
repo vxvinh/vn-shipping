@@ -122,7 +122,7 @@ class OrderListTable {
 		foreach ( $items as $item ) {
 			$this->shipping_data[ $item->order_id ] = new ShippingData( $item );
 		}
-
+		
 		return $posts;
 	}
 
