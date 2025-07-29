@@ -107,7 +107,7 @@ class Province implements JsonSerializable {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): mixed {
 		return $this->to_array();
 	}
 }
