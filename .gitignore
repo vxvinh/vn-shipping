@@ -18,3 +18,5 @@ bin/vendor
 *.js.map
 /hot
 mix-manifest.json
+/dist
+
