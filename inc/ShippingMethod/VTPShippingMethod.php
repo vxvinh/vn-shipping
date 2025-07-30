@@ -60,7 +60,51 @@ class VTPShippingMethod extends WC_Shipping_Method implements ShippingMethodInte
 	 * {@inheritdoc}
 	 */
 	public function get_access_token() {
-		return $this->get_option( 'access_token' );
+		$token = $this->get_option( 'access_token' );
+
+		if ( ! $token || $this->is_token_expired() ) {
+			$token = $this->refresh_access_token();
+		}
+
+		return $token;
+	}
+
+	private function is_token_expired() {
+		$expires = $this->get_option( 'access_token_expires_at' );
+		return ! $expires || time() > intval( $expires );
+	}
+
+	private function refresh_access_token() {
+		$username = $this->get_option( 'username' );
+		$password = $this->get_option( 'password' );
+
+		if ( ! $username || ! $password ) {
+			return null;
+		}
+
+		$response = wp_remote_post( 'https://partner.viettelpost.vn/v2/user/Login', [
+			'headers' => [ 'Content-Type' => 'application/json' ],
+			'body'    => json_encode( [
+				'USERNAME' => $username,
+				'PASSWORD' => $password,
+			] ),
+			'timeout' => 10,
+		] );
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( isset( $data['data']['token'] ) ) {
+			$token = sanitize_text_field( $data['data']['token'] );
+			$this->update_option( 'access_token', $token );
+			$this->update_option( 'access_token_expires_at', time() + 3600 ); // Assume 1 hour
+			return $token;
+		}
+
+		return null;
 	}
 
 	/**
@@ -93,6 +137,8 @@ class VTPShippingMethod extends WC_Shipping_Method implements ShippingMethodInte
 		}
 
 		$ship_info = $this->get_store_info();
+
+		echo '<script>console.log(' . json_encode($ship_info) . ');</script>';
 
 		$services = $courier->get_available_services(
 			[
