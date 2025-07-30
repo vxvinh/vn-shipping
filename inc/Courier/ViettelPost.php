@@ -297,12 +297,11 @@ class ViettelPost extends AbstractCourier {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get_tracking_info( $parameters ) {
-		echo '<script>console.log("get_tracking_info");</script>';
+	public function get_order_tracking( $parameters ) {
 		$response = $this->request(
 			'/v2/order/getOrderLog',
 			json_encode ([
-				'ORDER_NUMBER' => 117961928697,
+				'ORDER_NUMBER' => '',
 			]) ,
 		);
 
