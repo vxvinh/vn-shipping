@@ -148,6 +148,25 @@ class ShippingController extends WP_REST_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<shipping_method>[\w-]+)/order-tracking',
+			[
+				[
+					'methods' => WP_REST_Server::EDITABLE,
+					'callback' => [ $this, 'get_order_tracking' ],
+					'permission_callback' => [ $this, 'get_item_permissions_check' ],
+				],
+				'args' => [
+					'shipping_method' => [
+						'type' => 'string',
+						'description' => __( 'An alphanumeric identifier for the courier.', 'vn-shipping' ),
+					],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
 	}
 
 	/**
