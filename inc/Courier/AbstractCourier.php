@@ -71,7 +71,7 @@ abstract class AbstractCourier {
 	 * @param RequestParameters|array $parameters
 	 * @return JsonResponseData
 	 */
-	abstract public function get_tracking_info( $parameters );
+	abstract public function get_order_tracking( $parameters );
 
 	/**
 	 * @param RequestParameters|array $parameters
@@ -165,7 +165,7 @@ abstract class AbstractCourier {
 		if ( $this->token_header_key && $token = $this->get_access_token() ) {
 			$this->with_header( $this->token_header_key, $token );
 		}
-		
+
 		$endpoint = untrailingslashit( $this->get_base_url() ) . $endpoint;
 
 		$response = wp_remote_request(
