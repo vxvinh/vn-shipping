@@ -138,8 +138,6 @@ class VTPShippingMethod extends WC_Shipping_Method implements ShippingMethodInte
 
 		$ship_info = $this->get_store_info();
 
-		echo '<script>console.log(' . json_encode($ship_info) . ');</script>';
-
 		$services = $courier->get_available_services(
 			[
 				'PRODUCT_PRICE' => $context->cart_subtotal,
