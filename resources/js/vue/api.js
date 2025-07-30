@@ -124,6 +124,19 @@ export const InteractsWithAPI = {
       data = { order_id: this.currentOrderId, ...data };
 
       return safeApiFetch({ method: 'POST', path, data });
+    },
+
+  /**
+     * @param courier
+     * @param data
+     * @returns {Promise}
+     */
+    getOrderTracking(courier, data) {
+      const path = `/awethemes/vn-shipping/shipping/${courier}/order-tracking`;
+
+      data = { order_id: this.currentOrderId, ...data };
+
+      return safeApiFetch({ method: 'POST', path, data });
     }
   },
 
