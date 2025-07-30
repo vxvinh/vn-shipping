@@ -295,6 +295,24 @@ class ViettelPost extends AbstractCourier {
 	}
 
 	/**
+	 * {@inheritdoc}
+	 */
+	public function get_tracking_info( $parameters ) {
+		echo '<script>console.log("get_tracking_info");</script>';
+		$response = $this->request(
+			'/v2/order/getOrderLog',
+			json_encode ([
+				'ORDER_NUMBER' => 117961928697,
+			]) ,
+		);
+
+		self::assertResponseHasKey( $response, 'data' );
+
+		return self::newCollectionResponseData( $response['data'] ?: [] );
+
+	}
+
+	/**
 	 * @return CollectionResponseData
 	 */
 	public function get_province() {
