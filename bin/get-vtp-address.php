@@ -6,22 +6,22 @@ use VNShipping\Courier\ViettelPost;
 
 require_once __DIR__ . '/shared.php';
 
-global $ghn;
-$ghn = new ViettelPost( '', '' );
+global $vtp;
+$vtp = new ViettelPost( '', '' );
 
 const __SAVE_PATH = __DIR__ . '/data/vtp-json/';
 _create_save_path( __SAVE_PATH );
 
-$provinces = $ghn->get_province();
+$provinces = $vtp->get_province();
 file_put_contents(
 	__SAVE_PATH . '/tinh_tp.json',
 	json_encode( $provinces->get_data(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE )
 );
 
 function __save_quan_huyen( $ma_tinh ) {
-	global $ghn;
+	global $vtp;
 
-	$districts = $ghn->get_district( $ma_tinh );
+	$districts = $vtp->get_district( $ma_tinh );
 	file_put_contents(
 		__SAVE_PATH . '/quan-huyen/' . $ma_tinh . '.json',
 		json_encode( $districts->get_data(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE )
@@ -35,9 +35,9 @@ function __save_quan_huyen( $ma_tinh ) {
 }
 
 function __save_xa_phuong( $ma_quan ) {
-	global $ghn;
+	global $vtp;
 
-	$wards = $ghn->get_wards( $ma_quan );
+	$wards = $vtp->get_wards( $ma_quan );
 
 	file_put_contents(
 		__SAVE_PATH . '/xa-phuong/' . $ma_quan . '.json',
