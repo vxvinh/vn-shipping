@@ -299,9 +299,9 @@ class ViettelPost extends AbstractCourier {
 	 */
 	public function get_order_tracking( $parameters ) {
 		$response = $this->request(
-			'/v2/order/getOrderLog',
+			'/v2/order/getDetailOrder',
 			json_encode ([
-				'ORDER_NUMBER' => '',
+				'ORDER_NUMBER' => $parameters,
 			]) ,
 		);
 
