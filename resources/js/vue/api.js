@@ -285,8 +285,8 @@ export const InteractsWithCreateOrder = {
 
         PRODUCT_PRICE: this.insurance || 0,
         MONEY_COLLECTION: parseInt(this.cod || 0, 10),
-        ORDER_SERVICE: this.ORDER_SERVICE,
-        ORDER_SERVICE_ADD: this.ORDER_SERVICE_ADD
+        ORDER_SERVICE: this.ORDER_SERVICE?.MA_DV_CHINH || '',
+        ORDER_SERVICE_ADD: this.ORDER_SERVICE_ADD || '',
       };
     }
   }
