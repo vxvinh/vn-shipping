@@ -37,15 +37,15 @@ class Couriers {
 				'name' => esc_html__( 'Viettel Post', 'vn-shipping' ),
 				'icon' => untrailingslashit( VN_SHIPPING_PLUGIN_DIR_URL ) . '/resources/icons/vtp.png',
 			],
-			static::GHN => [
-				'id' => static::GHN,
-				'name' => esc_html__( 'Giao Hàng Nhanh', 'vn-shipping' ),
-				'icon' => untrailingslashit( VN_SHIPPING_PLUGIN_DIR_URL ) . '/resources/icons/ghn.png',
-			],
 			static::GHTK => [
 				'id' => static::GHTK,
 				'name' => esc_html__( 'Giao Hàng Tiết Kiệm', 'vn-shipping' ),
 				'icon' => untrailingslashit( VN_SHIPPING_PLUGIN_DIR_URL ) . '/resources/icons/ghtk.png',
+			],
+			static::GHN => [
+				'id' => static::GHN,
+				'name' => esc_html__( 'Giao Hàng Nhanh', 'vn-shipping' ),
+				'icon' => untrailingslashit( VN_SHIPPING_PLUGIN_DIR_URL ) . '/resources/icons/ghn.png',
 			],
 		];
 	}
