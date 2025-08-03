@@ -31,7 +31,7 @@
 
     <modal
       v-if="isCreateOrderModalOpen"
-      title="Create"
+      :title="createOrderTitle"
       @modal-close="isCreateOrderModalOpen = false">
       <loading v-if="isLoading('getOrderShippingInfo')" />
 
@@ -118,6 +118,24 @@ export default {
         case 'vtp':
         case 'viettel_post':
           return 'CreateVTPOrder';
+
+        default:
+          return null;
+      }
+    },
+    createOrderTitle() {
+      switch (this.states?.selectedCourier) {
+        case 'ghn':
+        case 'giao_hang_nhanh':
+          return 'Tạo vận đơn Giao Hàng Nhanh';
+
+        case 'ghtk':
+        case 'giao_hang_tiet_kiem':
+          return 'Tạo vận đơn Giao Hàng Tiết Kiệm (GHTK))';
+
+        case 'vtp':
+        case 'viettel_post':
+          return 'Tạo vận đơn Viettel Post';
 
         default:
           return null;
