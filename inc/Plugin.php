@@ -69,6 +69,15 @@ class Plugin {
 			] );
 		} );
 
+		// ViettelPost webhook
+		add_action('rest_api_init', function () {
+    		register_rest_route('viettelpost/v1', '/webhook', [
+			'methods'  => 'POST',
+			'callback' => 'handle_viettelpost_webhook',
+			'permission_callback' => '__return_true',
+		]);
+});
+
 	}
 
 	/**
@@ -245,4 +254,71 @@ class Plugin {
 
 		return null;
 	}
+
+	function handle_viettelpost_webhook(WP_REST_Request $request) {
+		$secret = 'vtp-webhook'; // Replace with actual webhook key
+
+		// 1. Validate webhook secret
+		$received_key = $request->get_header('x-webhook-key');
+		if ($received_key !== $secret) {
+			return new WP_REST_Response(['error' => 'Invalid webhook secret'], 403);
+		}
+
+		// 2. Parse JSON
+		$data = $request->get_json_params();
+
+		if (!isset($data['ORDER_NUMBER'], $data['STATUS'])) {
+			return new WP_REST_Response(['error' => 'Missing required fields'], 422);
+		}
+
+		$order_number    = trim($data['ORDER_NUMBER']);
+		$viettel_status  = strtoupper(trim($data['STATUS']));
+		$location        = $data['LOCATION'] ?? 'unknown location';
+		$time            = $data['TIME'] ?? current_time('mysql');
+
+		// 3. Status mapping
+		$status_map = [
+			'PICKED'      => 'processing',
+			'IN_TRANSIT'  => 'on-hold',
+			'DELIVERED'   => 'completed',
+			'CANCELLED'   => 'cancelled',
+			'RETURNED'    => 'refunded',
+			'FAILED'      => 'failed',
+		];
+
+		if (!isset($status_map[$viettel_status])) {
+			return new WP_REST_Response(['error' => 'Unknown ViettelPost status'], 400);
+		}
+
+		$wc_status = $status_map[$viettel_status];
+
+		// 4. Get order
+		$order = wc_get_order($order_number);
+		if (!$order) {
+			return new WP_REST_Response(['error' => 'Order not found'], 404);
+		}
+
+		// 5. Update order status if needed
+		if ($order->get_status() !== $wc_status) {
+			$order->update_status($wc_status, 'Status updated via ViettelPost webhook');
+		}
+
+		// 6. Add order note with tracking info
+		$note = sprintf(
+			'ViettelPost update: Status "%s" at %s (%s)',
+			$viettel_status,
+			$time,
+			$location
+		);
+		$order->add_order_note($note);
+
+		// 7. Optional: log to debug
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			error_log('[ViettelPost Webhook] ' . $note);
+		}
+
+		return new WP_REST_Response(['status' => 'success'], 200);
+	}
+
+
 }
