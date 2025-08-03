@@ -157,6 +157,10 @@
     border-radius: 6px;
     padding: 1rem;
     box-sizing: border-box;
+    position: sticky;
+    top: 1rem;
+    width: 100%;
+    box-sizing: border-box;
 
     button[type=submit] {
       width: 100%;
