@@ -162,7 +162,15 @@ class ViettelPost extends AbstractCourier {
 
 		$data = $parameters->validate(
 			function ( OptionsResolver $options ) {
+				$options->define( 'PRODUCT_PRICE' )->asInt()->required();
+				$options->define( 'MONEY_COLLECTION' )->asInt()->required();
+				$options->define( 'PRODUCT_WEIGHT' )->asInt()->required(); // gram unit.
 
+				$options->define( 'SENDER_PROVINCE' )->asInt()->required(); // TODO: Check this later.
+				$options->define( 'SENDER_DISTRICT' )->asInt()->required();
+
+				$options->define( 'RECEIVER_PROVINCE' )->asInt()->required();
+				$options->define( 'RECEIVER_DISTRICT' )->asInt()->required();
 			}
 		);
 
@@ -172,7 +180,7 @@ class ViettelPost extends AbstractCourier {
 		$this->remap_address_code( $data );
 
 		$response = $this->request(
-			'/v2/order/getPriceAll',
+			'/v2/order/getPrice',
 			json_encode( $data )
 		);
 
@@ -380,14 +388,6 @@ class ViettelPost extends AbstractCourier {
 	 */
 	protected function remap_address_code( array &$data ) {
 		$addressMapper = new AddressMapper( 'vtp' );
-
-		if ( $data['SENDER_PROVINCE'] ?? null ) {
-			$data['SENDER_PROVINCE'] = (int) $addressMapper->get_province_code( $data['SENDER_PROVINCE'] );
-			InvalidAddressDataException::throwIf( ! $data['SENDER_PROVINCE'] );
-
-			// $data['SENDER_DISTRICT'] = (int) $addressMapper->get_district_code( $data['SENDER_DISTRICT'] );
-			InvalidAddressDataException::throwIf( ! $data['SENDER_DISTRICT'] );
-		}
 
 		if ( $data['RECEIVER_PROVINCE'] ?? null ) {
 			$data['RECEIVER_PROVINCE'] = (int) $addressMapper->get_province_code( $data['RECEIVER_PROVINCE'] );
