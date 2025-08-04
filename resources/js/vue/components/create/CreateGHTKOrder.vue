@@ -7,19 +7,19 @@
         <div class="vns-form-group">
           <div class="vns-form-control">
             <label for="shipping_name">Họ tên</label>
-            <input type="text" name="shipping_name" id="shipping_name" v-model="name" :class="{ 'error': !name }">
+            <input type="text" name="shipping_name" id="shipping_name" v-model="name" :class="{ 'error': !name }" :placeholder="!name ? 'Vui lòng nhập họ tên' : ''" required>
           </div>
 
           <div class="vns-form-control">
             <label for="shipping_phone">Điện thoại</label>
-            <input type="text" name="shipping_phone" id="shipping_phone" v-model="phone" :class="{ 'error': !name }">
+            <input type="text" name="shipping_phone" id="shipping_phone" v-model="phone" :class="{ 'error': !phone }" :placeholder="!phone ? 'Vui lòng nhập số điên thoại' : ''" required>
           </div>
         </div>
 
         <div class="form-group">
           <div class="vns-form-control">
             <label for="shipping_address">Địa Chỉ</label>
-            <input type="text" name="shipping_address" id="shipping_address" v-model="address" :class="{ 'error': !name }">
+            <input type="text" name="shipping_address" id="shipping_address" v-model="address" :class="{ 'error': !address }" :placeholder="!address ? 'Vui lòng nhập địa chỉ' : ''" required>
           </div>
         </div>
 
@@ -43,6 +43,9 @@
               name="weight"
               min="0"
               max="1600000"
+              :class="{ 'error': !weight }"
+              :placeholder="!weight ? 'Vui lòng nhập khối lượng của hàng hoá' : ''"
+              required
             />
           </div>
 
@@ -56,6 +59,9 @@
               name="insurance"
               min="0"
               max="50000000"
+              :class="{ 'error': !insurance }"
+              :placeholder="!insurance ? 'Vui lòng nhập giá trị' : ''"
+              required
             />
           </div>
         </div>
@@ -255,7 +261,9 @@ export default {
       return this.name && this.phone && this.address &&
          this.address_data?.province &&
          this.address_data?.district &&
-         this.weight > 0;;
+         this.weight > 0 &&
+         this.insurance >= 0 &&
+         this.transport;
     },
     formattedServiceFee() {
       return this.serviceFees?.fee?.toLocaleString('vi-VN') || '0';
@@ -274,10 +282,6 @@ export default {
     this.debounceFetchFees = debounce(this.fetchFees, 450);
 
     this.fetchFees();
-
-    this.$watch(() => this.address_data?.province, this.debounceFetchFees);
-    this.$watch(() => this.address_data?.district, this.debounceFetchFees);
-    this.$watch(() => this.address_data?.ward, this.debounceFetchFees);
 
     this.$watch('insurance', this.debounceFetchFees);
     this.$watch('transport', this.debounceFetchFees);
@@ -321,7 +325,6 @@ export default {
       if (!this.isValid) return;
 
       if (!this.address_data?.province || !this.address_data?.district ) return;
-
 
       if (!this.weight) {
         return;
