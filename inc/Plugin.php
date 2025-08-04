@@ -105,6 +105,56 @@ class Plugin {
 			'callback' => 'handle_viettelpost_webhook',
 			'permission_callback' => '__return_true',
 		]);
+
+		// Hook GHTK Tracking Info to WooCommerce admin order UI:
+		add_action( 'woocommerce_admin_order_data_after_order_details', 'show_ghtk_tracking_info_admin' );
+		function show_ghtk_tracking_info_admin( $order ) {
+			$tracking_code = get_post_meta( $order->get_id(), '_ghtk_tracking_code', true );
+
+			if ( ! $tracking_code ) return;
+
+			$tracking_data = ghtk_get_tracking_info( $tracking_code );
+
+			if ( ! $tracking_data ) {
+				echo '<p><strong>GHTK Tracking:</strong> No tracking info available.</p>';
+				return;
+			}
+
+			echo '<div class="ghtk-tracking-info">';
+			echo '<h4>GHTK Tracking Info</h4>';
+			echo '<p><strong>Label Code:</strong> ' . esc_html( $tracking_data['label'] ) . '</p>';
+			echo '<p><strong>Status:</strong> ' . esc_html( $tracking_data['status'] ) . '</p>';
+			echo '<p><strong>Last Updated:</strong> ' . esc_html( $tracking_data['updated_at'] ) . '</p>';
+			echo '</div>';
+		}
+
+		// Show Tracking Info to Customers on “My Account” Order View
+		add_action( 'woocommerce_order_details_after_order_table', 'show_ghtk_tracking_info_customer' );
+		function show_ghtk_tracking_info_customer( $order ) {
+			$tracking_code = get_post_meta( $order->get_id(), '_ghtk_tracking_code', true );
+
+			if ( ! $tracking_code ) return;
+
+			$tracking_data = ghtk_get_tracking_info( $tracking_code );
+
+			echo $tracking_data;
+
+			echo $tracking_code;
+
+			if ( ! $tracking_data ) {
+				echo '<p><strong>GHTK Tracking:</strong> No tracking info available.</p>';
+				return;
+			}
+
+			echo '<div class="ghtk-tracking-info">';
+			echo '<h3>GHTK Tracking Information</h3>';
+			echo '<ul>';
+			echo '<li><strong>Label:</strong> ' . esc_html( $tracking_data['label'] ) . '</li>';
+			echo '<li><strong>Status:</strong> ' . esc_html( $tracking_data['status'] ) . '</li>';
+			echo '<li><strong>Last Updated:</strong> ' . esc_html( $tracking_data['updated_at'] ) . '</li>';
+			echo '</ul>';
+			echo '</div>';
+		}
 });
 
 	}
