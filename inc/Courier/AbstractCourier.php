@@ -71,12 +71,6 @@ abstract class AbstractCourier {
 	 * @param RequestParameters|array $parameters
 	 * @return JsonResponseData
 	 */
-	abstract public function get_order_tracking( $parameters );
-
-	/**
-	 * @param RequestParameters|array $parameters
-	 * @return JsonResponseData
-	 */
 	public function get_available_services( $parameters ) {
 		throw new UnsupportedMethodException(
 			sprintf(
