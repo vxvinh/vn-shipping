@@ -122,21 +122,21 @@
           <label style="display: inline-block; margin-right: 1.5rem;">
             <input
               v-model="is_freeship"
-              :value="false"
-              type="radio"
-              name="is_freeship"
-            />
-            <span>Khách trả</span>
-          </label>
-
-          <label style="display: inline-block;">
-            <input
-              v-model="is_freeship"
               :value="true"
               type="radio"
               name="is_freeship"
             />
             <span>Shop trả</span>
+          </label>
+
+          <label style="display: inline-block;">
+            <input
+              v-model="is_freeship"
+              :value="false"
+              type="radio"
+              name="is_freeship"
+            />
+            <span>Khách trả</span>
           </label>
         </div>
 
@@ -236,7 +236,7 @@ export default {
     return {
       pick_option: 'cod', // cod | post
       transport: 'road',
-      is_freeship: false,
+      is_freeship: true,
       cod: 0,
       codManual: 0,
       codCheck: false,
