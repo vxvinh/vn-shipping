@@ -7,19 +7,19 @@
         <div class="vns-form-group">
           <div class="vns-form-control">
             <label for="shipping_name">Họ tên</label>
-            <input type="text" name="shipping_name" id="shipping_name" v-model.trim="name" required>
+            <input type="text" name="shipping_name" id="shipping_name" v-model.trim="name" :class="{ 'error': !name }" :placeholder="!name ? 'Vui lòng nhập họ tên' : ''" required>
           </div>
 
           <div class="vns-form-control">
             <label for="shipping_phone">Điện thoại</label>
-            <input type="text" name="shipping_phone" id="shipping_phone" v-model.trim="phone" required>
+            <input type="text" name="shipping_phone" id="shipping_phone" v-model.trim="phone" :class="{ 'error': !phone }" :placeholder="!phone ? 'Vui lòng nhập số điện thoại' : ''" required>
           </div>
         </div>
 
         <div class="form-group">
           <div class="vns-form-control">
             <label for="shipping_address">Địa Chỉ</label>
-            <input type="text" name="shipping_address" id="shipping_address" v-model.trim="address">
+            <input type="text" name="shipping_address" id="shipping_address" v-model.trim="address" :class="{ 'error': !address }" :placeholder="!address ? 'Vui lòng nhập địa chỉ' : ''" required>
           </div>
         </div>
 
@@ -43,6 +43,8 @@
               name="length"
               min="0"
               max="200"
+              :class="{ 'error': !length }"
+              :placeholder="!length ? 'Vui lòng nhập chiều dài của hàng hoá' : ''"
               required
             />
           </div>
@@ -57,6 +59,8 @@
               name="width"
               min="0"
               max="200"
+              :class="{ 'error': !width }"
+              :placeholder="!width ? 'Vui lòng nhập chiều rộng của hàng hoá' : ''"
               required
             />
           </div>
@@ -71,6 +75,8 @@
               name="height"
               min="0"
               max="200"
+              :class="{ 'error': !height }"
+              :placeholder="!height ? 'Vui lòng nhập chiều cao của hàng hoá' : ''"
               required
             />
           </div>
@@ -87,6 +93,9 @@
               name="weight"
               min="0"
               max="1600000"
+              :class="{ 'error': !weight }"
+              :placeholder="!weight ? 'Vui lòng nhập khối lượng của hàng hoá' : ''"
+              required
             />
           </div>
 
@@ -100,6 +109,9 @@
               name="insurance"
               min="0"
               max="10000000"
+              :class="{ 'error': !insurance }"
+              :placeholder="!insurance ? 'Vui lòng nhập giá trị' : ''"
+              required
             />
 
             <small class="form-text text-muted">
@@ -310,9 +322,7 @@ export default {
       cod: 0,
       codManual: 0,
       codCheck: false,
-      ORDER_SERVICE: {
-        GIA_CUOC: 0,
-      },
+      ORDER_SERVICE: null,
 
       ORDER_EXTRA_SERVICE: [],
       ORDER_SERVICE_ADD: "",
@@ -364,7 +374,6 @@ export default {
 
     this.fetchServices();
 
-    this.$watch(() => this.address_data?.province, this.debounceFetchServices);
     this.$watch(() => this.address_data?.district, this.debounceFetchServices);
     this.$watch(() => this.address_data?.ward, this.debounceFetchServices);
 
