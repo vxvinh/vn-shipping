@@ -80,11 +80,13 @@ class GHTKShippingMethod extends WC_Shipping_Method implements ShippingMethodInt
 		$courier = Factory::createFromShippingMethod( $this );
 		$debug_mode = 'yes' === get_option( 'woocommerce_shipping_debug_mode', 'no' );
 
+		$ship_info = $this->get_store_info();
+
 		try {
 			$feeInfo = $courier->get_shipping_fee( [
 				'pick_address_id' => (string) $this->get_option( 'shop_id' ),
-				'pick_province' => '',
-				'pick_district' => '',
+				'pick_province' => $ship_info['province'],
+				'pick_district' => $ship_info['district'],
 				'pick_ward' => '',
 
 				'address' => $context->destination['address_1'],
@@ -96,6 +98,7 @@ class GHTKShippingMethod extends WC_Shipping_Method implements ShippingMethodInt
 				'value' => $context->contents_cost,
 
 				'transport' => $this->get_option( 'default_transport', 'road' ),
+				'vue' => 0,
 			] );
 
 			if ( isset( $feeInfo['delivery'] ) && $feeInfo['delivery'] ) {
@@ -280,10 +283,15 @@ class GHTKShippingMethod extends WC_Shipping_Method implements ShippingMethodInt
 			}
 
 			$district = null;
+			$province = null;
 
 			// Attempt to extract something like "Quận Bình Thạnh" or "Huyện Củ Chi"
 			if ( preg_match( '/(Quận|Huyện|Thị xã|Xã|TP\.?|Thành phố)\s+([^\.,]+)/u', $store['address'], $matches ) ) {
 				$district = trim( $matches[0] );
+			}
+
+			if ( preg_match( '/(Tỉnh|TP)\s+([^\.,]+)/u', $store['address'], $matches ) ) {
+				$province = trim( $matches[0] );
 			}
 
 			$store_info = [
@@ -292,6 +300,7 @@ class GHTKShippingMethod extends WC_Shipping_Method implements ShippingMethodInt
 				'pick_name'         => $store['pick_name'],
 				'address'      		=> $store['address'],
 				'district'     		=> $district,
+				'province'			=> $province
 			];
 
 
