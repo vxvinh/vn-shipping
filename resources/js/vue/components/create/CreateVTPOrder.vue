@@ -7,19 +7,19 @@
         <div class="vns-form-group">
           <div class="vns-form-control">
             <label for="shipping_name">Họ tên</label>
-            <input type="text" name="name" id="shipping_name" v-model="name">
+            <input type="text" name="shipping_name" id="shipping_name" v-model.trim="name" required>
           </div>
 
           <div class="vns-form-control">
             <label for="shipping_phone">Điện thoại</label>
-            <input type="text" name="name" id="shipping_phone" v-model="phone">
+            <input type="text" name="shipping_phone" id="shipping_phone" v-model.trim="phone" required>
           </div>
         </div>
 
         <div class="form-group">
           <div class="vns-form-control">
             <label for="shipping_address">Địa Chỉ</label>
-            <input type="text" name="name" id="shipping_address" v-model="address">
+            <input type="text" name="shipping_address" id="shipping_address" v-model.trim="address">
           </div>
         </div>
 
@@ -159,7 +159,7 @@
           :is-loading="isLoading('getAvailableServices')"
           :is-small="true">
           <div class="vns-form-group is-3-columns" v-if="availableServices && address_data.province && address_data.district && ORDER_SERVICE">
-              <div class="vns-form-control"  v-for="extra_service in ORDER_SERVICE.EXTRA_SERVICE" :key="extra_service.SERVICE_CODE">
+              <div class="vns-form-control"  v-for="extra_service in ORDER_SERVICE.EXTRA_SERVICE || []" :key="extra_service.SERVICE_CODE">
                 <label>
                   <input
                     v-model="ORDER_EXTRA_SERVICE"
@@ -312,7 +312,6 @@ export default {
       codCheck: false,
       ORDER_SERVICE: {
         GIA_CUOC: 0,
-        ORDER_SERVICE_ADD: [],
       },
 
       ORDER_EXTRA_SERVICE: [],
@@ -408,8 +407,8 @@ export default {
 
           RECEIVER_PROVINCE: Number(this.address_data.province),
           RECEIVER_DISTRICT: Number(this.address_data.district),
-          SENDER_PROVINCE: Number(window.vnStoreInfo.province_code),
-          SENDER_DISTRICT: Number(window.vnStoreInfo.district_code),
+          SENDER_PROVINCE: Number(window.vnStoreInfoVTP.province_code),
+          SENDER_DISTRICT: Number(window.vnStoreInfoVTP.district_code),
         });
 
         const services = Array.isArray(response) ? response : [response];
@@ -440,16 +439,25 @@ export default {
 
   computed: {
     isValid() {
-      return true;
+      return (
+        this.name &&
+        this.phone &&
+        this.address &&
+        this.address_data?.province &&
+        this.address_data?.district &&
+        this.length > 0 &&
+        this.width > 0 &&
+        this.height > 0 &&
+        this.weight > 0 &&
+        this.ORDER_SERVICE
+      );
     },
 
     cod: {
       get() {
-        // Always display as string — fallback to "0" when empty
         return this.cod === '' ? '0' : Number(this.cod);
       },
       set(value) {
-        // If user clears it, reset to 0
         this.cod = value === '' ? 0 : Number(value);
       }
     }
