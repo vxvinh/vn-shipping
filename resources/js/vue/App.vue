@@ -131,7 +131,7 @@ export default {
 
         case 'ghtk':
         case 'giao_hang_tiet_kiem':
-          return 'Tạo vận đơn Giao Hàng Tiết Kiệm (GHTK))';
+          return 'Tạo vận đơn Giao Hàng Tiết Kiệm (GHTK)';
 
         case 'vtp':
         case 'viettel_post':
