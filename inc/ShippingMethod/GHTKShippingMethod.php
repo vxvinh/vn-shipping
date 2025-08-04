@@ -263,4 +263,43 @@ class GHTKShippingMethod extends WC_Shipping_Method implements ShippingMethodInt
 			)
 		);
 	}
+
+	/**
+	 * @return array|null
+	 */
+	public function get_store_info() {
+		$store_info = [];
+
+		if ( null === $store_info ) {
+			return [];
+		}
+
+		foreach ( $this->get_stores() as $store ) {
+			if ( empty( $store['pick_address_id'] ) ) {
+				continue;
+			}
+
+			$district = null;
+
+			// Attempt to extract something like "Quận Bình Thạnh" or "Huyện Củ Chi"
+			if ( preg_match( '/(Quận|Huyện|Thị xã|Xã|TP\.?|Thành phố)\s+([^\.,]+)/u', $store['address'], $matches ) ) {
+				$district = trim( $matches[0] );
+			}
+
+			$store_info = [
+				'pick_address_id'	=> $store['pick_address_id'],
+				'pick_tel'         => $store['pick_tel'],
+				'pick_name'         => $store['pick_name'],
+				'address'      		=> $store['address'],
+				'district'     		=> $district,
+			];
+
+
+			if ( $store['pick_address_id'] === $this->get_option( 'shop_id' ) ) {
+            	return $store_info;
+        	}
+		}
+
+    	return null;
+	}
 }
