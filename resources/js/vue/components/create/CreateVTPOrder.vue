@@ -334,7 +334,6 @@ export default {
           this.availableServices = [];
           this.ORDER_SERVICE = null;
         }
-        console.log(newVal.province);
       },
       deep: true
     },
