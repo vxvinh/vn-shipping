@@ -43,11 +43,17 @@ class Plugin {
 
 			$base_location = wc_get_base_location(); // ['country' => 'VN', 'state' => 'SG']
 
-			$base_info = $this->vnshipping_get_store_info();
+			$base_info_vtp = $this->vnshipping_get_store_info('viettel_post');
+			$base_info_ghtk = $this->vnshipping_get_store_info('giao_hang_tiet_kiem');
 
-			if ( ! is_array( $base_info ) ) {
-				error_log( '$base_info is not an array or is null' );
-				$base_info = []; // fallback to empty array to avoid further warnings
+			if ( ! is_array( $base_info_vtp ) ) {
+				error_log( '$base_info_vtp is not an array or is null' );
+				$base_info_vtp = []; // fallback to empty array to avoid further warnings
+			}
+
+			if ( ! is_array( $base_info_ghtk ) ) {
+				error_log( '$base_info_ghtk is not an array or is null' );
+				$base_info_ghtk = []; // fallback to empty array to avoid further warnings
 			}
 
 			// Map WooCommerce province code to province name
@@ -55,23 +61,40 @@ class Plugin {
 			$province_name = $states[ $base_location['state'] ] ?? $base_location['state'];
 
 			wp_enqueue_script(
-				'vn-shipping-store-info',
+				'vn-shipping-vtp-store-info',
 				plugin_dir_url( __FILE__ ) . 'resources/js/vue/components/create/CreateVTPOrder.js', // Update path as needed
 				[ 'wp-element' ],
 				'1.0.0',
 				true
 			);
 
-			wp_localize_script( 'vn-shipping-store-info', 'vnStoreInfo', [
+			wp_enqueue_script(
+				'vn-shipping-ghtk-store-info',
+				plugin_dir_url( __FILE__ ) . 'resources/js/vue/components/create/CreateGHTKOrder.js', // Update path as needed
+				[ 'wp-element' ],
+				'1.0.0',
+				true
+			);
+
+			wp_localize_script( 'vn-shipping-vtp-store-info', 'vnStoreInfoVTP', [
 				'address_1'     => get_option( 'woocommerce_store_address' ),
 				'address_2'     => get_option( 'woocommerce_store_address_2' ),
 				'district'      => get_option( 'woocommerce_store_city' ),
-				'district_code' => $base_info['districtId'] ?? '',
-				'district'      => $base_info['district'] ?? '',
-				'province_code' => $base_info['provinceId'] ?? '',
-				'province'      => $province_name ?? '',
+				'district_code' => $base_info_vtp['districtId'],
+				'province_code' => $base_info_vtp['provinceId'],
+				'province'      => $province_name,
 				'postcode'      => get_option( 'woocommerce_store_postcode' ),
-				'country'       => $base_location['country'] ?? '',
+				'country'       => $base_location['country'],
+			] );
+
+			wp_localize_script( 'vn-shipping-ghtk-store-info', 'vnStoreInfoGHTK', [
+				'address_1'     => get_option( 'woocommerce_store_address' ),
+				'address_2'     => get_option( 'woocommerce_store_address_2' ),
+				'district'      => get_option( 'woocommerce_store_city' ),
+				'district'      => $base_info_ghtk['district'],
+				'province'      => $province_name,
+				'postcode'      => get_option( 'woocommerce_store_postcode' ),
+				'country'       => $base_location['country'],
 			] );
 		} );
 
@@ -245,17 +268,12 @@ class Plugin {
 		);
 	}
 
-	function vnshipping_get_store_info() {
+	function vnshipping_get_store_info($get_method) {
 		$shipping_methods = \WC_Shipping_Zones::get_zones();
 
 		foreach ( $shipping_methods as $zone ) {
 			foreach ( $zone['shipping_methods'] as $method ) {
-				if ( $method->id === 'viettel_post' ) {
-					if ( method_exists( $method, 'get_store_info' ) ) {
-						return $method->get_store_info();
-					}
-				}
-				if ( $method->id === 'giao_hang_tiet_kiem' ) {
+				if ( $method->id === $get_method ) {
 					if ( method_exists( $method, 'get_store_info' ) ) {
 						return $method->get_store_info();
 					}
