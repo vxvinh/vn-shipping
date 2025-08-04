@@ -221,6 +221,20 @@ class GHTK extends AbstractCourier {
 	}
 
 	/**
+	 * {@inheritdoc}
+	 */
+	function get_tracking_info( $tracking_code ) {
+
+		$response = $this->request(
+			'/services/shipment/v2/',
+			$tracking_code,
+			'GET'
+		);
+
+		return $response['data'] ?? null;
+	}
+
+	/**
 	 * @param array $data
 	 */
 	protected function remap_address_name( array &$data ) {
