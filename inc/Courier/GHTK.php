@@ -52,7 +52,7 @@ class GHTK extends AbstractCourier {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function get_shipping_fee( $parameters ) {
+	public function get_shipping_fee( $parameters, $vue=0 ) {
 		if ( ! $parameters instanceof RequestParameters ) {
 			$parameters = new RequestParameters( $parameters );
 		}
@@ -79,10 +79,11 @@ class GHTK extends AbstractCourier {
 					->asString()
 					->allowedValues( 'xteam', 'none' )
 					->default( 'none' );
+				$options->define( 'vue' )->asInt();
 			}
 		);
-
-		$this->remap_address_name( $data );
+		if ($data['vue'] != null) { $vue = $data['vue']; }
+		if ($vue == 1) { $this->remap_address_name( $data ); }
 
 		$response = $this->request( '/services/shipment/fee', $data, 'GET' );
 
