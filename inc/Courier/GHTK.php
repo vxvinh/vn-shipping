@@ -82,6 +82,8 @@ class GHTK extends AbstractCourier {
 			}
 		);
 
+		$this->remap_address_name( $data );
+
 		$response = $this->request( '/services/shipment/fee', $data, 'GET' );
 
 		self::assertResponseValid( $response, 'fee' );
