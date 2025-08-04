@@ -340,7 +340,8 @@ export default {
         value: this.insurance,
         transport: this.transport,
         deliver_option: this.deliver_option,
-      }).then(response => {
+        vue: 1,
+      }, true).then(response => {
         if (response && response.fee !== undefined) {
           this.serviceFees = response;
         } else {
