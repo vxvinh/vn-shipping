@@ -119,17 +119,7 @@
         <div class="vns-form-control">
           <label>Phí ship</label>
 
-          <label style="display: inline-block; margin-right: 1.5rem;">
-            <input
-              v-model="is_freeship"
-              :value="true"
-              type="radio"
-              name="is_freeship"
-            />
-            <span>Shop trả</span>
-          </label>
-
-          <label style="display: inline-block;">
+          <label style="display: inline-block;  margin-right: 1.5rem;">
             <input
               v-model="is_freeship"
               :value="false"
@@ -137,6 +127,16 @@
               name="is_freeship"
             />
             <span>Khách trả</span>
+          </label>
+
+          <label style="display: inline-block;">
+            <input
+              v-model="is_freeship"
+              :value="true"
+              type="radio"
+              name="is_freeship"
+            />
+            <span>Shop trả</span>
           </label>
         </div>
 
@@ -236,7 +236,7 @@ export default {
     return {
       pick_option: 'cod', // cod | post
       transport: 'road',
-      is_freeship: true,
+      is_freeship: false,
       cod: 0,
       codManual: 0,
       codCheck: false,
