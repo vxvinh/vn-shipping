@@ -287,6 +287,8 @@ export const InteractsWithCreateOrder = {
         MONEY_COLLECTION: parseInt(this.cod || 0, 10),
         ORDER_SERVICE: this.ORDER_SERVICE?.MA_DV_CHINH || '',
         ORDER_SERVICE_ADD: this.ORDER_SERVICE_ADD || '',
+
+        ORDER_PAYMENT: this.ORDER_PAYMENT || 1,
       };
     }
   }
