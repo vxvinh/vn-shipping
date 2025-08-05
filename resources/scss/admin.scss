@@ -38,6 +38,11 @@
   .error {
     border: 2px solid #b9263b;
   }
+
+  input.error:focus {
+    border-color: #b9263b;
+    box-shadow: none;
+  }
 }
 
 .vns-grid-row {
@@ -235,4 +240,8 @@
     width: 5rem;
     z-index: 2;
   }
+}
+
+.error-text {
+  color:#b9263b;
 }
