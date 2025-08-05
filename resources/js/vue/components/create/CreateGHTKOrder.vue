@@ -12,7 +12,16 @@
 
           <div class="vns-form-control">
             <label for="shipping_phone">Điện thoại</label>
-            <input type="text" name="shipping_phone" id="shipping_phone" v-model="phone" :class="{ 'error': !phone }" :placeholder="!phone ? 'Vui lòng nhập số điên thoại' : ''" required>
+            <input
+              type="text"
+              name="shipping_phone" 
+              id="shipping_phone" 
+              v-model="phone" 
+              :class="{ 'error': !phone || !isPhoneValid }" 
+              :placeholder="!phone ? 'Vui lòng nhập số điện thoại' : ''"  
+              required
+            />
+            <p v-if="!isPhoneValid" class="error-text">Số điện thoại không hợp lệ</p>
           </div>
         </div>
 
@@ -47,6 +56,7 @@
               :placeholder="!weight ? 'Vui lòng nhập khối lượng của hàng hoá' : ''"
               required
             />
+            <p v-if="weightError" class="error-text">Khối lượng phải là một số hợp lệ</p>
           </div>
 
           <div class="vns-form-control">
@@ -59,10 +69,11 @@
               name="insurance"
               min="0"
               max="50000000"
-              :class="{ 'error': !insurance }"
-              :placeholder="!insurance ? 'Vui lòng nhập giá trị' : ''"
+              :class="{ 'error': insurance === null || insurance === '' }"
+              :placeholder="(insurance === null || insurance === '') ? 'Vui lòng nhập giá trị' : ''"
               required
             />
+            <p v-if="insuranceError" class="error-text">Giá trị hàng hoá phải là một số hợp lệ</p>
           </div>
         </div>
       </section>
@@ -166,7 +177,10 @@
             min="0"
             max="50000000"
             :disabled="codCheck"
+            :class="{ 'error': cod === null || cod === '' }"
+            :placeholder="(cod === null || cod === '') ? 'Vui lòng nhập số tiền thu hộ' : ''"
           />
+          <p v-if="codError" class="error-text">Tiền thu hộ phải là một số hợp lệ</p>
         </div>
 
         <div class="vns-form-control">
@@ -258,23 +272,42 @@ export default {
 
   computed: {
     isValid() {
-      return this.name && this.phone && this.address &&
-         this.address_data?.province &&
-         this.address_data?.district &&
-         this.weight > 0 &&
-         this.insurance >= 0 &&
-         this.transport;
+      return (
+        this.name &&
+        this.phone && this.address &&
+        this.address_data?.province &&
+        this.address_data?.district &&
+        this.weight > 0 &&
+        this.transport &&
+        typeof this.insurance === 'number' && this.insurance >= 0 &&
+        typeof this.cod === 'number' && this.cod >= 0 &&
+        this.isPhoneValid &&
+        !this.weightError &&
+        !this.insuranceError &&
+        !this.codError
+      );
     },
     formattedServiceFee() {
       return this.serviceFees?.fee?.toLocaleString('vi-VN') || '0';
     },
-    cod: {
-      get() {
-        return this.cod === '' ? '0' : Number(this.cod);
-      },
-      set(value) {
-        this.cod = value === '' ? 0 : Number(value);
-      }
+    isPhoneValid() {
+      const phonePattern = /^(0|\+84)[0-9]{9}$/; // Vietnamese phone numbers
+      return phonePattern.test(this.phone);
+    },
+    weightError() {
+      return this.weight === null || this.weight === '' || isNaN(this.weight) || this.weight <= 0;
+    },
+    insuranceError() {
+      return ['insurance'].some(field => {
+        const value = this[field];
+        return value === '' || value === null || isNaN(value) || value < 0;
+      });
+    },
+    codError() {
+      return ['cod'].some(field => {
+        const value = this[field];
+        return value === '' || value === null || isNaN(value) || value < 0;
+      });
     }
   },
 
