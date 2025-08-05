@@ -7,12 +7,29 @@
         <div class="vns-form-group">
           <div class="vns-form-control">
             <label for="shipping_name">Họ tên</label>
-            <input type="text" name="shipping_name" id="shipping_name" v-model.trim="name" :class="{ 'error': !name }" :placeholder="!name ? 'Vui lòng nhập họ tên' : ''" required>
+            <input 
+              type="text" 
+              name="shipping_name" 
+              id="shipping_name" 
+              v-model.trim="name" 
+              :class="{ 'error': !name }" 
+              :placeholder="!name ? 'Vui lòng nhập họ tên' : ''" 
+              required
+            />
           </div>
 
           <div class="vns-form-control">
             <label for="shipping_phone">Điện thoại</label>
-            <input type="text" name="shipping_phone" id="shipping_phone" v-model.trim="phone" :class="{ 'error': !phone }" :placeholder="!phone ? 'Vui lòng nhập số điện thoại' : ''" required>
+            <input 
+              type="text" 
+              name="shipping_phone" 
+              id="shipping_phone" 
+              v-model.trim="phone" 
+              :class="{ 'error': !phone || !isPhoneValid }" 
+              :placeholder="!phone ? 'Vui lòng nhập số điện thoại' : ''" 
+              required
+            />
+            <p v-if="!isPhoneValid" class="error-text">Số điện thoại không hợp lệ</p>
           </div>
         </div>
 
@@ -31,6 +48,7 @@
 
       <section>
         <h3>Hàng hoá</h3>
+        <p v-if="dimensionErrors" class="error-text">Có ít nhất một chỉ số hàng hoá không hợp lệ</p>
 
         <div class="vns-form-group is-3-columns">
           <div class="vns-form-control">
@@ -109,10 +127,11 @@
               name="insurance"
               min="0"
               max="10000000"
-              :class="{ 'error': !insurance }"
-              :placeholder="!insurance ? 'Vui lòng nhập giá trị' : ''"
+              :class="{ 'error': insurance === null || insurance === '' }"
+              :placeholder="(insurance === null || insurance === '') ? 'Vui lòng nhập giá trị' : ''"
               required
             />
+            <p v-if="insuranceError" class="error-text">Giá trị hàng hoá phải là một số hợp lệ</p>
 
             <small class="form-text text-muted">
               <a href="https://viettelpost.com.vn/wp-content/uploads/2024/01/Dieu-khoan-va-dieu-kien-su-dung-dich-vu.pdf"
@@ -249,7 +268,10 @@
             min="0"
             max="50000000"
             :disabled="codCheck"
+            :class="{ 'error': cod === null || cod === '' }"
+            :placeholder="(cod === null || cod === '') ? 'Vui lòng nhập số tiền thu hộ' : ''"
           />
+          <p v-if="codError" class="error-text">Tiền thu hộ phải là một số hợp lệ</p>
         </div>
 
         <div class="vns-form-control">
@@ -458,17 +480,35 @@ export default {
         this.width > 0 &&
         this.height > 0 &&
         this.weight > 0 &&
-        this.ORDER_SERVICE
+        typeof this.insurance === 'number' && this.insurance >= 0 &&
+        typeof this.cod === 'number' && this.cod >= 0 &&
+        this.ORDER_SERVICE &&
+        this.isPhoneValid &&
+        !this.dimensionErrors &&
+        !this.insuranceError &&
+        !this.codError
       );
     },
-
-    cod: {
-      get() {
-        return this.cod === '' ? '0' : Number(this.cod);
-      },
-      set(value) {
-        this.cod = value === '' ? 0 : Number(value);
-      }
+    isPhoneValid() {
+      const phonePattern = /^(0|\+84)[0-9]{9}$/; // Vietnamese phone numbers
+      return phonePattern.test(this.phone);
+    },
+    dimensionErrors() {
+      return ['length', 'width', 'height', 'weight'].some(
+        field => !this[field] || isNaN(this[field]) || this[field] <= 0
+      );
+    },
+    insuranceError() {
+      return ['insurance'].some(field => {
+        const value = this[field];
+        return value === '' || value === null || isNaN(value) || value < 0;
+      });
+    },
+    codError() {
+      return ['cod'].some(field => {
+        const value = this[field];
+        return value === '' || value === null || isNaN(value) || value < 0;
+      });
     }
   }
 };
