@@ -509,7 +509,20 @@ export default {
         const value = this[field];
         return value === '' || value === null || isNaN(value) || value < 0;
       });
-    }
+    },
+    ORDER_PAYMENT() {
+      // Loại vận đơn 1. Không thu hộ 2. Thu hộ tiền hàng và tiền cước 3. Thu hộ tiền hàng 4. Thu hộ tiền cước
+      switch (true) {
+        case this.codCheck && !this.is_freeship:
+          return 2;
+        case this.codCheck && this.is_freeship:
+          return 3;
+        case !this.codCheck && !this.is_freeship:
+          return 4;
+        default:
+          return 1;
+      }
+    },
   }
 };
 </script>
