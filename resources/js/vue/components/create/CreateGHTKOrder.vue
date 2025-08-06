@@ -138,8 +138,8 @@
 
           <label style="display: inline-block;  margin-right: 1.5rem;">
             <input
-              v-model="is_freeship"
-              :value="false"
+              v-model.number="is_freeship"
+              :value="0"
               type="radio"
               name="is_freeship"
             />
@@ -148,8 +148,8 @@
 
           <label style="display: inline-block;">
             <input
-              v-model="is_freeship"
-              :value="true"
+              v-model.number="is_freeship"
+              :value="1"
               type="radio"
               name="is_freeship"
             />
@@ -188,7 +188,7 @@
 
           <label style="display: inline-block; margin-right: 1.5rem;">
             <template v-if="serviceFees && address_data.province && address_data.district">
-              {{ is_freeship ? (serviceFees.fee).toLocaleString('vi-VN') : '0' }} VNĐ
+              {{ is_freeship === 1 ? (serviceFees.fee).toLocaleString('vi-VN') : '0' }} VNĐ
             </template>
             <template v-else>
              <p class="vns-component-notice">Vui lòng chọn gói cước</p>
@@ -202,7 +202,7 @@
 
           <label style="display: inline-block; margin-right: 1.5rem;">
             <template v-if="serviceFees">
-              {{ is_freeship ? cod.toLocaleString('vi-VN') : (serviceFees.fee + cod).toLocaleString('vi-VN') }} VNĐ
+              {{ is_freeship === 1 ? cod.toLocaleString('vi-VN') : (serviceFees.fee + cod).toLocaleString('vi-VN') }} VNĐ
             </template>
             <template v-else>
               <p class="vns-component-notice">Vui lòng chọn gói cước</p>
@@ -256,7 +256,7 @@ export default {
     return {
       pick_option: 'cod', // cod | post
       transport: 'road',
-      is_freeship: false,
+      is_freeship: 0,
       cod: 0,
       codManual: 0,
       codCheck: false,
