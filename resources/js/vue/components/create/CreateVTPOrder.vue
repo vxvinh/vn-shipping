@@ -340,7 +340,7 @@ export default {
 
   data() {
     return {
-      is_freeship: false,
+       is_freeship: window.vnOrderConfigVTP?.is_freeship ?? false,
       cod: 0,
       codManual: 0,
       codCheck: false,
