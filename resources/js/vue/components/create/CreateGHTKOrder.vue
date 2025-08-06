@@ -188,7 +188,7 @@
 
           <label style="display: inline-block; margin-right: 1.5rem;">
             <template v-if="serviceFees && address_data.province && address_data.district">
-              {{ is_freeship === 1 ? (serviceFees.fee).toLocaleString('vi-VN') : '0' }} VNĐ
+              {{ is_freeship == 1 ? (serviceFees.fee).toLocaleString('vi-VN') : '0' }} VNĐ
             </template>
             <template v-else>
              <p class="vns-component-notice">Vui lòng chọn gói cước</p>
@@ -201,8 +201,8 @@
           <label style="color: #00693a; font-weight: bold;">Tiền khách trả</label>
 
           <label style="display: inline-block; margin-right: 1.5rem;">
-            <template v-if="serviceFees">
-              {{ is_freeship === 1 ? cod.toLocaleString('vi-VN') : (serviceFees.fee + cod).toLocaleString('vi-VN') }} VNĐ
+            <template v-if="serviceFees && address_data.province && address_data.district">
+              {{ is_freeship == 1 ? cod.toLocaleString('vi-VN') : (serviceFees.fee + cod).toLocaleString('vi-VN') }} VNĐ
             </template>
             <template v-else>
               <p class="vns-component-notice">Vui lòng chọn gói cước</p>
@@ -256,7 +256,7 @@ export default {
     return {
       pick_option: 'cod', // cod | post
       transport: 'road',
-      is_freeship: 0,
+      is_freeship: window.vnOrderConfigGHTK?.is_freeship ?? 0,
       cod: 0,
       codManual: 0,
       codCheck: false,
