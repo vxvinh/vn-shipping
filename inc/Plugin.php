@@ -104,58 +104,84 @@ class Plugin {
 			'methods'  => 'POST',
 			'callback' => 'handle_viettelpost_webhook',
 			'permission_callback' => '__return_true',
-		]);
+			]);
 
-		// Hook GHTK Tracking Info to WooCommerce admin order UI:
-		add_action( 'woocommerce_admin_order_data_after_order_details', 'show_ghtk_tracking_info_admin' );
-		function show_ghtk_tracking_info_admin( $order ) {
-			$tracking_code = get_post_meta( $order->get_id(), '_ghtk_tracking_code', true );
+			// Hook GHTK Tracking Info to WooCommerce admin order UI:
+			add_action( 'woocommerce_admin_order_data_after_order_details', 'show_ghtk_tracking_info_admin' );
+			function show_ghtk_tracking_info_admin( $order ) {
+				$tracking_code = get_post_meta( $order->get_id(), '_ghtk_tracking_code', true );
 
-			if ( ! $tracking_code ) return;
+				if ( ! $tracking_code ) return;
 
-			$tracking_data = ghtk_get_tracking_info( $tracking_code );
+				$tracking_data = ghtk_get_tracking_info( $tracking_code );
 
-			if ( ! $tracking_data ) {
-				echo '<p><strong>GHTK Tracking:</strong> No tracking info available.</p>';
+				if ( ! $tracking_data ) {
+					echo '<p><strong>GHTK Tracking:</strong> No tracking info available.</p>';
+					return;
+				}
+
+				echo '<div class="ghtk-tracking-info">';
+				echo '<h4>GHTK Tracking Info</h4>';
+				echo '<p><strong>Label Code:</strong> ' . esc_html( $tracking_data['label'] ) . '</p>';
+				echo '<p><strong>Status:</strong> ' . esc_html( $tracking_data['status'] ) . '</p>';
+				echo '<p><strong>Last Updated:</strong> ' . esc_html( $tracking_data['updated_at'] ) . '</p>';
+				echo '</div>';
+			}
+
+			// Show Tracking Info to Customers on “My Account” Order View
+			add_action( 'woocommerce_order_details_after_order_table', 'show_ghtk_tracking_info_customer' );
+			function show_ghtk_tracking_info_customer( $order ) {
+				$tracking_code = get_post_meta( $order->get_id(), '_ghtk_tracking_code', true );
+
+				if ( ! $tracking_code ) return;
+
+				$tracking_data = ghtk_get_tracking_info( $tracking_code );
+
+				echo $tracking_data;
+
+				echo $tracking_code;
+
+				if ( ! $tracking_data ) {
+					echo '<p><strong>GHTK Tracking:</strong> No tracking info available.</p>';
+					return;
+				}
+
+				echo '<div class="ghtk-tracking-info">';
+				echo '<h3>GHTK Tracking Information</h3>';
+				echo '<ul>';
+				echo '<li><strong>Label:</strong> ' . esc_html( $tracking_data['label'] ) . '</li>';
+				echo '<li><strong>Status:</strong> ' . esc_html( $tracking_data['status'] ) . '</li>';
+				echo '<li><strong>Last Updated:</strong> ' . esc_html( $tracking_data['updated_at'] ) . '</li>';
+				echo '</ul>';
+				echo '</div>';
+			}
+		});
+
+		add_action('admin_enqueue_scripts', function($hook) {
+			// Only load on WooCommerce order edit page
+			if ( $hook !== 'post.php' || get_post_type() !== 'shop_order' ) {
 				return;
 			}
 
-			echo '<div class="ghtk-tracking-info">';
-			echo '<h4>GHTK Tracking Info</h4>';
-			echo '<p><strong>Label Code:</strong> ' . esc_html( $tracking_data['label'] ) . '</p>';
-			echo '<p><strong>Status:</strong> ' . esc_html( $tracking_data['status'] ) . '</p>';
-			echo '<p><strong>Last Updated:</strong> ' . esc_html( $tracking_data['updated_at'] ) . '</p>';
-			echo '</div>';
-		}
+			$order_id   = isset($_GET['post']) ? absint($_GET['post']) : 0;
+			$is_freeship = $this->get_is_freeship_info_from_order( $order_id );
 
-		// Show Tracking Info to Customers on “My Account” Order View
-		add_action( 'woocommerce_order_details_after_order_table', 'show_ghtk_tracking_info_customer' );
-		function show_ghtk_tracking_info_customer( $order ) {
-			$tracking_code = get_post_meta( $order->get_id(), '_ghtk_tracking_code', true );
+			wp_localize_script(
+				'vn-shipping-vtp-store-info', // Vue app handle
+				'vnOrderConfigVTP',
+				[
+					'is_freeship' => $is_freeship ? "true" : "false"
+				]
+			);
 
-			if ( ! $tracking_code ) return;
-
-			$tracking_data = ghtk_get_tracking_info( $tracking_code );
-
-			echo $tracking_data;
-
-			echo $tracking_code;
-
-			if ( ! $tracking_data ) {
-				echo '<p><strong>GHTK Tracking:</strong> No tracking info available.</p>';
-				return;
-			}
-
-			echo '<div class="ghtk-tracking-info">';
-			echo '<h3>GHTK Tracking Information</h3>';
-			echo '<ul>';
-			echo '<li><strong>Label:</strong> ' . esc_html( $tracking_data['label'] ) . '</li>';
-			echo '<li><strong>Status:</strong> ' . esc_html( $tracking_data['status'] ) . '</li>';
-			echo '<li><strong>Last Updated:</strong> ' . esc_html( $tracking_data['updated_at'] ) . '</li>';
-			echo '</ul>';
-			echo '</div>';
-		}
-});
+			wp_localize_script(
+				'vn-shipping-ghtk-store-info', // Vue app handle
+				'vnOrderConfigGHTK',
+				[
+					'is_freeship' => $is_freeship ? 1 : 0
+				]
+			);
+		});
 
 	}
 
@@ -332,6 +358,22 @@ class Plugin {
 		}
 
 		return null;
+	}
+
+	public function get_is_freeship_info_from_order( $order_id ) {
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return false;
+		}
+
+		foreach ( $order->get_shipping_methods() as $shipping_item ) {
+			$method_id = $shipping_item->get_method_id(); // e.g. "free_shipping"
+			if ( strpos( $method_id, 'free_shipping' ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	function handle_viettelpost_webhook(WP_REST_Request $request) {
