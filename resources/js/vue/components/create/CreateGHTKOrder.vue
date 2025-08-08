@@ -139,7 +139,7 @@
           <label style="display: inline-block;  margin-right: 1.5rem;">
             <input
               v-model.number="is_freeship"
-              :value="0"
+              :value=0
               type="radio"
               name="is_freeship"
             />
@@ -149,7 +149,7 @@
           <label style="display: inline-block;">
             <input
               v-model.number="is_freeship"
-              :value="1"
+              :value=1
               type="radio"
               name="is_freeship"
             />
@@ -256,7 +256,7 @@ export default {
     return {
       pick_option: 'cod', // cod | post
       transport: 'road',
-      is_freeship: window.vnOrderConfigGHTK?.is_freeship ?? 0,
+      is_freeship: Number(window.vnOrderConfigGHTK?.is_freeship ?? 0),
       cod: 0,
       codManual: 0,
       codCheck: false,
