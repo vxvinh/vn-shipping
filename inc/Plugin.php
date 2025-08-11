@@ -165,12 +165,13 @@ class Plugin {
 
 			$order_id   = isset($_GET['post']) ? absint($_GET['post']) : 0;
 			$is_freeship = $this->get_is_freeship_info_from_order( $order_id );
+			$is_vietqr = $this->get_is_vietqr_info_from_order( $order_id );
 
 			wp_localize_script(
 				'vn-shipping-vtp-store-info', // Vue app handle
 				'vnOrderConfigVTP',
 				[
-					'is_freeship' => $is_freeship ? "true" : "false"
+					'is_freeship' => ($is_freeship || $is_vietqr) ? 1 : 0
 				]
 			);
 
@@ -178,7 +179,7 @@ class Plugin {
 				'vn-shipping-ghtk-store-info', // Vue app handle
 				'vnOrderConfigGHTK',
 				[
-					'is_freeship' => $is_freeship ? 1 : 0
+					'is_freeship' => ($is_freeship || $is_vietqr) ? 1 : 0
 				]
 			);
 		});
@@ -374,6 +375,18 @@ class Plugin {
 		}
 
 		return false;
+	}
+
+	public function get_is_vietqr_info_from_order ( $order_id ) {
+		$order = wc_get_order( $order_id );
+		$payment_method = $order->get_payment_method();
+
+		if ( ! $order || ! $payment_method) {
+			return false;
+		}
+
+		if ($payment_method == 'vietqr') return true;
+		else return false;
 	}
 
 	function handle_viettelpost_webhook(WP_REST_Request $request) {
