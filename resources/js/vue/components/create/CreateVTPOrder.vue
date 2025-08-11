@@ -340,7 +340,7 @@ export default {
 
   data() {
     return {
-       is_freeship: window.vnOrderConfigVTP?.is_freeship ?? false,
+       is_freeship: Boolean(Number(window.vnOrderConfigVTP?.is_freeship)) ?? false,
       cod: 0,
       codManual: 0,
       codCheck: false,
@@ -454,6 +454,8 @@ export default {
         } else {
           this.ORDER_SERVICE = null;
         }
+
+        console.log(this.is_freeship);
 
         console.log('📦 ViettelPost Services:', services);
       } catch (error) {
