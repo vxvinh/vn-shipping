@@ -332,6 +332,7 @@
 import Notice from '../../elements/Notice';
 import BlockUi from '../../elements/BlockUi';
 import AddressField from '../../elements/AddressField';
+import { store } from '../../store';
 
 import {
   FormattingMixin,
@@ -358,8 +359,11 @@ export default {
   data() {
     const is_cod = Boolean(Number(window.vnOrderConfigVTP?.is_cod));
     const total_price = Number(window.vnOrderConfigVTP?.total_price);
+    const match = store.states.orderShippingMethods[0]?.title?.match(/\(([^)]+)\)/);
+    const shipping_service_name = match ? match[1] : null;
 
     return {
+      orderShippingMethods_title: shipping_service_name,
       is_freeship: Boolean(Number(window.vnOrderConfigVTP?.is_freeship)) ?? false,
       total_price: total_price,
       cod: 0,
@@ -388,6 +392,9 @@ export default {
         }
       },
       deep: true
+    },
+    availableServices(newServices) {
+      this.selectServiceByTitle();
     },
     insurance(newVal) {
       if (this.codCheck) {
@@ -436,7 +443,7 @@ export default {
       }
 
       // Reset selection
-      this.ORDER_SERVICE = '';
+      this.ORDER_SERVICE = null;
       this.ORDER_EXTRA_SERVICE = [];
       this.ORDER_SERVICE_ADD = "";
       this.errors.services = null;
@@ -482,6 +489,18 @@ export default {
         console.error('❌ Lỗi khi lấy dịch vụ ViettelPost:', error);
       }
     },
+
+    selectServiceByTitle() {
+      if (!this.orderShippingMethods_title || !this.availableServices.length) {
+        return;
+      }
+      const matched = this.availableServices.find(
+        service => service.TEN_DICHVU === this.orderShippingMethods_title
+      );
+      if (matched) {
+        this.ORDER_SERVICE = matched;
+      }
+    }
   },
 
   computed: {
