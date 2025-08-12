@@ -74,6 +74,31 @@
               required
             />
             <p v-if="insuranceError" class="error-text">Giá trị hàng hoá phải là một số hợp lệ</p>
+
+            <small class="form-text text-muted">
+              <a href="https://ghtk.vn/dieu-khoan-va-quy-dinh-tai-ghtk/"
+                 target="_blank">Qui trình</a>
+              &nbsp; &amp; &nbsp;
+              <a href="https://ghtk.vn/chinh-sach-bao-mat-ghtk/hoi-dap/danh-muc/?slug=quy-trinh-xu-ly-khieu-nai-va-boi-hoan"
+                 target="_blank">Chính sách xử lý đền bù</a>
+            </small>
+          </div>
+
+          <div class="vns-form-control">
+            <label for="total_price">Tổng tiền hàng (VNĐ)</label>
+
+            <input
+              v-model.number="total_price"
+              type="number"
+              id="total_price"
+              name="total_price"
+              min="0"
+              max="10000000"
+              :class="{ 'error': total_price === null || total_price === '' }"
+              :placeholder="(total_price === null || total_price === '') ? 'Vui lòng nhập giá trị' : ''"
+              required
+            />
+            <p v-if="totalpriceError" class="error-text">Tiền hàng phải là một số hợp lệ</p>
           </div>
         </div>
       </section>
@@ -253,13 +278,17 @@ export default {
   ],
 
   data() {
+    const is_cod = Boolean(Number(window.vnOrderConfigGHTK?.is_cod));
+    const total_price = Number(window.vnOrderConfigVTP?.total_price);
+
     return {
       pick_option: 'cod', // cod | post
       transport: 'road',
       is_freeship: Number(window.vnOrderConfigGHTK?.is_freeship ?? 0),
+      total_price: total_price,
       cod: 0,
       codManual: 0,
-      codCheck: false,
+      codCheck: total_price > 0 ? is_cod : false,
 
       deliver_option: 'none',
       tags: [], //
@@ -284,6 +313,7 @@ export default {
         this.isPhoneValid &&
         !this.weightError &&
         !this.insuranceError &&
+        !this.totalpriceError &&
         !this.codError
       );
     },
@@ -303,12 +333,28 @@ export default {
         return value === '' || value === null || isNaN(value) || value < 0;
       });
     },
+    totalpriceError() {
+      return ['total_price'].some(field => {
+        const value = this[field];
+        return value === '' || value === null || isNaN(value) || value < 0;
+      });
+    },
     codError() {
       return ['cod'].some(field => {
         const value = this[field];
         return value === '' || value === null || isNaN(value) || value < 0;
       });
-    }
+    },
+    cod: {
+      get() {
+        return this.codCheck ? this.total_price : this.codManual;
+      },
+      set(val) {
+        if (!this.codCheck) {
+          this.codManual = val;
+        }
+      }
+    },
   },
 
   created() {
@@ -338,12 +384,9 @@ export default {
       },
       deep: true
     },
-    codCheck(newVal) {
-      if (newVal) {
-        this.codManual = this.cod;
-        this.cod = this.insurance;
-      } else {
-        this.cod = this.codManual;
+    total_price(newVal) {
+      if (newVal <= 0) {
+        this.codCheck = false;
       }
     },
     insurance(newVal) {
