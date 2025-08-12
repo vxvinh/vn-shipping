@@ -164,14 +164,19 @@ class Plugin {
 			}
 
 			$order_id   = isset($_GET['post']) ? absint($_GET['post']) : 0;
-			$is_freeship = $this->get_is_freeship_info_from_order( $order_id );
-			$is_vietqr = $this->get_is_vietqr_info_from_order( $order_id );
+			$order = wc_get_order( $order_id );
+			$is_freeship = $this->get_is_freeship_info_from_order( $order );
+			$is_vietqr = $this->get_is_vietqr_info_from_order( $order );
+			$is_cod = $this->get_cod_payment_method( $order );
+			$total_price = $order->get_subtotal() - $order->get_total_discount();
 
 			wp_localize_script(
 				'vn-shipping-vtp-store-info', // Vue app handle
 				'vnOrderConfigVTP',
 				[
-					'is_freeship' => ($is_freeship || $is_vietqr) ? 1 : 0
+					'is_freeship' => ($is_freeship || $is_vietqr) ? 1 : 0,
+					'is_cod' => $is_cod ? 1 : 0,
+					'total_price' => $total_price
 				]
 			);
 
@@ -179,7 +184,9 @@ class Plugin {
 				'vn-shipping-ghtk-store-info', // Vue app handle
 				'vnOrderConfigGHTK',
 				[
-					'is_freeship' => ($is_freeship || $is_vietqr) ? 1 : 0
+					'is_freeship' => ($is_freeship || $is_vietqr) ? 1 : 0,
+					'is_cod' => $is_cod ? 1 : 0,
+					'total_price' => $total_price
 				]
 			);
 		});
@@ -361,8 +368,7 @@ class Plugin {
 		return null;
 	}
 
-	public function get_is_freeship_info_from_order( $order_id ) {
-		$order = wc_get_order( $order_id );
+	public function get_is_freeship_info_from_order( $order ) {
 		if ( ! $order ) {
 			return false;
 		}
@@ -377,8 +383,7 @@ class Plugin {
 		return false;
 	}
 
-	public function get_is_vietqr_info_from_order ( $order_id ) {
-		$order = wc_get_order( $order_id );
+	public function get_is_vietqr_info_from_order ( $order ) {
 		$payment_method = $order->get_payment_method();
 
 		if ( ! $order || ! $payment_method) {
@@ -386,6 +391,17 @@ class Plugin {
 		}
 
 		if ($payment_method == 'vietqr') return true;
+		else return false;
+	}
+
+	public function get_cod_payment_method ( $order ) {
+		$payment_method = $order->get_payment_method();
+
+		if ( ! $order || ! $payment_method) {
+			return false;
+		}
+
+		if ($payment_method == 'cod') return true;
 		else return false;
 	}
 
