@@ -141,6 +141,23 @@
                  target="_blank">Chính sách xử lý đền bù</a>
             </small>
           </div>
+
+          <div class="vns-form-control">
+            <label for="total_price">Tổng tiền hàng (VNĐ)</label>
+
+            <input
+              v-model.number="total_price"
+              type="number"
+              id="total_price"
+              name="total_price"
+              min="0"
+              max="10000000"
+              :class="{ 'error': total_price === null || total_price === '' }"
+              :placeholder="(total_price === null || total_price === '') ? 'Vui lòng nhập giá trị' : ''"
+              required
+            />
+            <p v-if="totalpriceError" class="error-text">Tiền hàng phải là một số hợp lệ</p>
+          </div>
         </div>
       </section>
 
@@ -339,11 +356,15 @@ export default {
   ],
 
   data() {
+    const is_cod = Boolean(Number(window.vnOrderConfigVTP?.is_cod));
+    const total_price = Number(window.vnOrderConfigVTP?.total_price);
+
     return {
-       is_freeship: Boolean(Number(window.vnOrderConfigVTP?.is_freeship)) ?? false,
+      is_freeship: Boolean(Number(window.vnOrderConfigVTP?.is_freeship)) ?? false,
+      total_price: total_price,
       cod: 0,
       codManual: 0,
-      codCheck: false,
+      codCheck: total_price > 0 ? is_cod : false,
       ORDER_SERVICE: null,
 
       ORDER_EXTRA_SERVICE: [],
@@ -368,22 +389,17 @@ export default {
       },
       deep: true
     },
-    codCheck(newVal) {
-      if (newVal) {
-        // Save the manual cod before overriding
-        this.codManual = this.cod;
-        this.cod = this.insurance;
-      } else {
-        // Restore previous cod
-        this.cod = this.codManual;
-      }
-    },
     insurance(newVal) {
       if (this.codCheck) {
         this.cod = newVal;
       }
     },
-     ORDER_EXTRA_SERVICE: {
+    total_price(newVal) {
+      if (newVal <= 0) {
+        this.codCheck = false;
+      }
+    },
+    ORDER_EXTRA_SERVICE: {
       deep: true,
       handler(newVal) {
         this.ORDER_SERVICE_ADD = newVal.join(',');
@@ -455,8 +471,6 @@ export default {
           this.ORDER_SERVICE = null;
         }
 
-        console.log(this.is_freeship);
-
         console.log('📦 ViettelPost Services:', services);
       } catch (error) {
         this.availableServices = null;
@@ -488,6 +502,7 @@ export default {
         this.isPhoneValid &&
         !this.dimensionErrors &&
         !this.insuranceError &&
+        !this.totalpriceError &&
         !this.codError
       );
     },
@@ -506,11 +521,27 @@ export default {
         return value === '' || value === null || isNaN(value) || value < 0;
       });
     },
+    totalpriceError() {
+      return ['total_price'].some(field => {
+        const value = this[field];
+        return value === '' || value === null || isNaN(value) || value < 0;
+      });
+    },
     codError() {
       return ['cod'].some(field => {
         const value = this[field];
         return value === '' || value === null || isNaN(value) || value < 0;
       });
+    },
+    cod: {
+      get() {
+        return this.codCheck ? this.total_price : this.codManual;
+      },
+      set(val) {
+        if (!this.codCheck) {
+          this.codManual = val;
+        }
+      }
     },
     ORDER_PAYMENT() {
       // Loại vận đơn 1. Không thu hộ 2. Thu hộ tiền hàng và tiền cước 3. Thu hộ tiền hàng 4. Thu hộ tiền cước
