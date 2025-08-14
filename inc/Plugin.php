@@ -191,6 +191,82 @@ class Plugin {
 			);
 		});
 
+		// Pick the cheapest shipping method server-side
+		add_action( 'woocommerce_before_checkout_form', function() {
+			// Set cheapest shipping method as default on load
+			$packages = WC()->shipping()->get_packages();
+
+			foreach ( $packages as $package_index => $package ) {
+				if ( empty( $package['rates'] ) ) {
+					continue;
+				}
+
+				$cheapest = null;
+
+				foreach ( $package['rates'] as $rate_id => $rate ) {
+					if ( $cheapest === null || $rate->cost < $cheapest->cost ) {
+						$cheapest = $rate;
+					}
+				}
+
+				if ( $cheapest ) {
+					WC()->session->set( 'chosen_shipping_methods', [ $cheapest->id ] );
+				}
+			}
+		}, 5 );
+
+		// Auto-select cheapest when shipping is recalculated
+		add_action( 'wp_footer', function() {
+			if ( ! is_checkout() ) {
+				return;
+			}
+			?>
+			<script type="text/javascript">
+			jQuery(function($){
+				let userSelected = false;
+
+				// Detect when user manually selects a shipping method
+				$(document).on('change', 'input[name^="shipping_method"]', function(){
+					userSelected = true;
+				});
+
+				function selectCheapestShipping() {
+					// If user has already chosen something, don't override
+					if (userSelected) return;
+
+					var $methods = $('input[name^="shipping_method"]');
+					if ($methods.length > 1) {
+						var cheapest = null;
+						var cheapestPrice = Infinity;
+
+						$methods.each(function(){
+							var priceText = $(this).closest('li').find('.woocommerce-Price-amount').first().text();
+							var price = parseFloat(priceText.replace(/[^0-9\.]/g, '') || 0);
+
+							if (price < cheapestPrice) {
+								cheapestPrice = price;
+								cheapest = this;
+							}
+						});
+
+						if (cheapest && !$(cheapest).is(':checked')) {
+							$(cheapest).prop('checked', true).trigger('change');
+						}
+					}
+				}
+
+				// Run after shipping updates, but only if no user choice yet
+				$(document.body).on('updated_checkout', function() {
+					selectCheapestShipping();
+				});
+
+				// First run
+				selectCheapestShipping();
+			});
+			</script>
+			<?php
+		});
+
 	}
 
 	/**
