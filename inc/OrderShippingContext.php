@@ -96,32 +96,39 @@ class OrderShippingContext implements JsonSerializable {
 		$data = array_reduce(
 			$order->get_items(),
 			function ( array $arr, $item ) {
-				$qty = $item->get_quantity();
+				$qty     = $item->get_quantity();
 				$product = $item->get_product();
 
-				if ( $product === false ) {
+				if ( ! $product ) {
 					return $arr;
 				}
 
+				// Weight
 				if ( $product->has_weight() ) {
 					$arr['weight'] += (float) $product->get_weight() * $qty;
 				}
 
+				// Volume calculation
 				if ( $product->has_dimensions() ) {
-					$arr['length'] += (float) $product->get_length() * $qty;
-					$arr['width'] += (float) $product->get_width() * $qty;
-					$arr['height'] += (float) $product->get_height() * $qty;
+					$length = (float) $product->get_length();
+					$width  = (float) $product->get_width();
+					$height = (float) $product->get_height();
+
+					$arr['volume'] += ( $length * $width * $height ) * $qty;
 				}
 
 				return $arr;
 			},
-			[ 'length' => 0, 'width' => 0, 'height' => 0, 'weight' => 0 ]
+			[ 'volume' => 0, 'weight' => 0 ]
 		);
 
+		// Convert total volume into cube dimensions
+		$cube_size = $data['volume'] > 0 ? pow( $data['volume'], 1/3 ) : 10;
+
 		$context->weight = wc_get_weight( $data['weight'], 'g' ) ?: 1000;
-		$context->length = wc_get_dimension( $data['length'], 'cm' ) ?: 10;
-		$context->width = wc_get_dimension( $data['width'], 'cm' ) ?: 10;
-		$context->height = wc_get_dimension( $data['height'], 'cm' ) ?: 10;
+		$context->length = wc_get_dimension( $cube_size, 'cm' ) ?: 10;
+		$context->width  = wc_get_dimension( $cube_size, 'cm' ) ?: 10;
+		$context->height = wc_get_dimension( $cube_size, 'cm' ) ?: 10;
 
 		return $context;
 	}
