@@ -123,7 +123,7 @@ class OrderShippingContext implements JsonSerializable {
 		);
 
 		// Convert total volume into cube dimensions
-		$cube_size = $data['volume'] > 0 ? pow( $data['volume'], 1/3 ) : 10;
+		$cube_size = $data['volume'] > 0 ? (int) ceil( pow( $data['volume'], 1/3 ) ) : 10;
 
 		$context->weight = wc_get_weight( $data['weight'], 'g' ) ?: 1000;
 		$context->length = wc_get_dimension( $cube_size, 'cm' ) ?: 10;
